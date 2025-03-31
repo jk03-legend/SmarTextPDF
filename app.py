@@ -92,16 +92,15 @@ def convert_pdf_to_docx():
         # Proofread the text using Sapling
         proofread_text_content, grammar_errors = proofread_text(extracted_text)
 
-        # Save proofread text back to a new DOCX file
-        proofread_docx_filename = "proofread_" + docx_filename
-        proofread_docx_path = os.path.join(OUTPUT_FOLDER, proofread_docx_filename)
+        # Save proofread text back to DOCX
+        proofread_docx_path = os.path.join(OUTPUT_FOLDER, "proofread_" + docx_filename)
         save_text_to_docx(proofread_text_content, proofread_docx_path)
 
         return jsonify({
             "original_text": extracted_text,
             "proofread_text": proofread_text_content,
-            "grammar_errors": grammar_errors,  # Provide detailed grammar corrections
-            "download_url": "/download/" + proofread_docx_filename
+            "grammar_errors": grammar_errors,
+            "download_url": "/download/" + "proofread_" + docx_filename
         })
 
     except Exception as e:
