@@ -1,0 +1,7 @@
+Flask
+flask-cors
+werkzeug
+requests
+python-docx
+pdf2docx
+gunicorn  # Required for deployment on Render
