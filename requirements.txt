@@ -1,7 +1,7 @@
 Flask
-flask-cors
-werkzeug
+Werkzeug
+docx
 requests
-python-docx
 pdf2docx
-gunicorn  # Required for deployment on Render
+flask-cors
+gunicorn
