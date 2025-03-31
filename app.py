@@ -77,31 +77,43 @@ def convert_pdf_to_docx():
     docx_filename = filename.rsplit('.', 1)[0] + '.docx'
     docx_path = os.path.join(OUTPUT_FOLDER, docx_filename)
 
-try:
-    # Convert PDF to DOCX
-    cv = Converter(pdf_path)
-    cv.convert(docx_path, start=0, end=None)  # Ensure full document conversion
-    cv.close()
-    
-    if not os.path.exists(docx_path):
-        return jsonify({"error": "DOCX file was not created"}), 500
-    
-    # Extract text from DOCX
-    extracted_text = extract_text_from_docx(docx_path)
-    
-    # Proofread the text using Sapling
-    proofread_text_content, grammar_errors = proofread_text(extracted_text)
-    
-    # Save proofread text back to DOCX
-    proofread_docx_path = os.path.join(OUTPUT_FOLDER, "proofread_" + docx_filename)
-    save_text_to_docx(proofread_text_content, proofread_docx_path)
-    
-    return jsonify({
-        "original_text": extracted_text,
-        "proofread_text": proofread_text_content,
-        "grammar_errors": grammar_errors,  # Provide detailed grammar corrections
-        "download_url": "/download/" + "proofread_" + docx_filename
-    })
+    try:
+        # Convert PDF to DOCX
+        cv = Converter(pdf_path)
+        cv.convert(docx_path, start=0, end=None)  # Ensure full document conversion
+        cv.close()
 
-except Exception as e:  # ✅ Add this exception handling block
-    return jsonify({"error": f"Conversion error: {str(e)}"}), 500
+        if not os.path.exists(docx_path):
+            return jsonify({"error": "DOCX file was not created"}), 500
+
+        # Extract text from DOCX
+        extracted_text = extract_text_from_docx(docx_path)
+
+        # Proofread the text using Sapling
+        proofread_text_content, grammar_errors = proofread_text(extracted_text)
+
+        # Save proofread text back to a new DOCX file
+        proofread_docx_filename = "proofread_" + docx_filename
+        proofread_docx_path = os.path.join(OUTPUT_FOLDER, proofread_docx_filename)
+        save_text_to_docx(proofread_text_content, proofread_docx_path)
+
+        return jsonify({
+            "original_text": extracted_text,
+            "proofread_text": proofread_text_content,
+            "grammar_errors": grammar_errors,  # Provide detailed grammar corrections
+            "download_url": "/download/" + proofread_docx_filename
+        })
+
+    except Exception as e:
+        return jsonify({"error": f"Conversion error: {str(e)}"}), 500
+
+@app.route('/download/<filename>')
+def download_file(filename):
+    """Handles file download."""
+    file_path = os.path.join(OUTPUT_FOLDER, filename)
+    if os.path.exists(file_path):
+        return send_file(file_path, as_attachment=True)
+    return jsonify({"error": "File not found"}), 404
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=10000, debug=True)
