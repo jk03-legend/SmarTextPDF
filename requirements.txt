@@ -1,7 +1,0 @@
-Flask
-Werkzeug
-docx
-requests
-pdf2docx
-flask-cors
-gunicorn
